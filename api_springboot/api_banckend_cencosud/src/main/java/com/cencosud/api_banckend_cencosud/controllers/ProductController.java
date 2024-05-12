@@ -9,14 +9,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-// Realização do CRUD
+// CRUD - CREATE, READ, UPDATE, DELETE
 
 @RestController
 public class ProductController {
@@ -25,7 +23,8 @@ public class ProductController {
     @Autowired
     ProductRepository productRepository;
 
-    // CRUD - POST
+    // POST - CREATE
+
     @PostMapping("/products")
     public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto) {
         var productModel = new ProductModel();
@@ -34,10 +33,53 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(productModel));
     }
 
-    // GET ALL
-    @GetMapping("/products")
+    // GET ALL - READ
+
+    @GetMapping("/allProducts")
     public ResponseEntity<List<ProductModel>> getAllProducts(){
         return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
+    }
+
+    // GET ONE - READ
+
+    @GetMapping("/products/{id}")
+    public ResponseEntity<Object> getOneProduct(@PathVariable(value = "id") UUID id){
+        Optional <ProductModel> productO = productRepository.findById(id);
+        if(productO.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("API not found");
+        }else {
+            return ResponseEntity.status(HttpStatus.OK).body(productO.get());
+        }
+    }
+
+    // PUT - UPDATE
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id,
+                                                @RequestBody @Valid ProductRecordDto productRecordDto) {
+
+        Optional<ProductModel> productO = productRepository.findById(id);
+        if (productO.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("API not fund");
+        }
+
+        var productUpdate = productO.get();
+        BeanUtils.copyProperties(productRecordDto, productUpdate);
+        return  ResponseEntity.status(HttpStatus.OK).body(productRepository.save(productUpdate));
+
+    }
+
+    // DEL - DELETE
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<Object> deleteProduct(@PathVariable(value = "id") UUID id){
+        Optional<ProductModel> productO = productRepository.findById(id);
+        if (productO.isEmpty()){
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("API not found");
+        }
+
+        productRepository.delete(productO.get());
+        return ResponseEntity.status(HttpStatus.OK).body("API delete successfully");
     }
 
 
