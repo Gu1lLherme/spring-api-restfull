@@ -35,7 +35,7 @@ public class ProductController {
 
     // GET ALL - READ
 
-    @GetMapping("/allProducts")
+    @GetMapping("/all/products")
     public ResponseEntity<List<ProductModel>> getAllProducts(){
         return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
     }
