@@ -4,6 +4,9 @@ package com.cencosud.api_banckend_cencosud.controllers;
 import com.cencosud.api_banckend_cencosud.dtos.ProductRecordDto;
 import com.cencosud.api_banckend_cencosud.models.ProductModel;
 import com.cencosud.api_banckend_cencosud.repositories.ProductRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +28,13 @@ public class ProductController {
 
     // POST - CREATE
 
-    @PostMapping("/products")
+    @Operation(description = "Metodo para Cadastrar uma nova API")
+    @ApiResponses( value= {
+            @ApiResponse(responseCode= "200", description = "API Cadastrada com Sucesso!"),
+            @ApiResponse(responseCode = "400", description = "Dados do Cadastro, inseridos de forma incorreta")
+
+    })
+    @PostMapping("post/products")
     public ResponseEntity<ProductModel> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto) {
         var productModel = new ProductModel();
         // Transforma os atributos Json em java
@@ -34,15 +43,25 @@ public class ProductController {
     }
 
     // GET ALL - READ
+    @Operation(description = "Metodo para Consultar todas as API cadastradas no Banco de Dados")
+    @ApiResponses( value= {
+            @ApiResponse(responseCode= "200", description = "Consulta realizada com Sucesso!"),
+            @ApiResponse(responseCode = "400", description = "Nenhuma Api cadastrada ")
 
-    @GetMapping("/all/products")
+    })
+    @GetMapping("/getAll/products")
     public ResponseEntity<List<ProductModel>> getAllProducts(){
         return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
     }
 
     // GET ONE - READ
+    @Operation(description = "Metodo para Consultar apenas uma API cadastradas no Banco de Dados atraves do ID")
+    @ApiResponses( value= {
+            @ApiResponse(responseCode= "200", description = "Consulta realizada com Sucesso!"),
+            @ApiResponse(responseCode = "400", description = "Nenhuma Api cadastrada; ID Incorreto")
 
-    @GetMapping("/products/{id}")
+    })
+    @GetMapping("get/products/{id}")
     public ResponseEntity<Object> getOneProduct(@PathVariable(value = "id") UUID id){
         Optional <ProductModel> productO = productRepository.findById(id);
         if(productO.isEmpty()){
@@ -53,8 +72,13 @@ public class ProductController {
     }
 
     // PUT - UPDATE
+    @Operation(description = "Metodo para Atualizar as API cadastradas no Banco de Dados atraves do ID")
+    @ApiResponses( value= {
+            @ApiResponse(responseCode= "200", description = "Update realizado com Sucesso!"),
+            @ApiResponse(responseCode = "400", description = "Nenhuma Api atualizada ")
 
-    @PutMapping("/products/{id}")
+    })
+    @PutMapping("put/products/{id}")
     public ResponseEntity<Object> updateProduct(@PathVariable(value = "id") UUID id,
                                                 @RequestBody @Valid ProductRecordDto productRecordDto) {
 
@@ -70,8 +94,13 @@ public class ProductController {
     }
 
     // DEL - DELETE
+    @Operation(description = "Metodo para deletar as API cadastradas no Banco de Dados atraves do ID")
+    @ApiResponses( value= {
+            @ApiResponse(responseCode= "200", description = "API excluida com Sucesso!"),
+            @ApiResponse(responseCode = "400", description = "Nenhuma Api cadastrada ")
 
-    @DeleteMapping("/products/{id}")
+    })
+    @DeleteMapping("del/products/{id}")
     public ResponseEntity<Object> deleteProduct(@PathVariable(value = "id") UUID id){
         Optional<ProductModel> productO = productRepository.findById(id);
         if (productO.isEmpty()){
